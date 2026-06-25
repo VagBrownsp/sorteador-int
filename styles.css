@@ -1,0 +1,27 @@
+#resultadoSorteio{
+
+    margin-top: 25px;
+
+    text-align: center;
+}
+
+#resultadoSorteio h2{
+
+    color: #003366;
+    margin-bottom: 15px;
+}
+
+#resultadoSorteio p{
+
+    background: #f4f6f8;
+
+    padding: 12px;
+
+    margin-top: 10px;
+
+    border-radius: 8px;
+
+    font-size: 18px;
+
+    font-weight: bold;
+}
