@@ -1,6 +1,5 @@
 const SCRIPT_URL =
-"https://script.google.com/macros/s/AKfycbx1sw54tjzAwprM98U85GCWcaknuqDJpSbdUgYtRX_DUgLN3VRcYxGMMhkZ6XXWgcpz/exechttps://script.google.com/macros/s/AKfycbzshhdl4ryLqs5TwhKtKz07a4ateWX9uTPhuXTtLx0Yw7mlajmuJZkJUY_k-LE2Rwbf/exec";
-
+"https://script.google.com/macros/s/AKfycbx1sw54tjzAwprM98U85GCWcaknuqDJpSbdUgYtRX_DUgLN3VRcYxGMMhkZ6XXWgcpz/exec"
 const btn =
 document.getElementById("btnSortear");
 
