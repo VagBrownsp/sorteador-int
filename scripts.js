@@ -7,6 +7,46 @@ const resultado = document.getElementById("resultadoSorteio");
 
 btn.addEventListener("click", realizarSorteio);
 
+// ==========================
+// Carrega participantes via JSONP
+// ==========================
+function carregarParticipantes() {
+
+    return new Promise((resolve, reject) => {
+
+        const callback = "jsonp_" + Date.now();
+
+        window[callback] = function (dados) {
+
+            resolve(dados);
+
+            delete window[callback];
+
+            script.remove();
+
+        };
+
+        const script = document.createElement("script");
+
+        script.src = SCRIPT_URL + "?callback=" + callback;
+
+        script.onerror = () => {
+
+            delete window[callback];
+
+            reject(new Error("Erro ao carregar participantes."));
+
+        };
+
+        document.body.appendChild(script);
+
+    });
+
+}
+
+// ==========================
+// Sorteio
+// ==========================
 async function realizarSorteio() {
 
     btn.disabled = true;
@@ -19,69 +59,54 @@ async function realizarSorteio() {
 
     try {
 
-        const resposta = await fetch(SCRIPT_URL);
-
-        if (!resposta.ok) {
-
-            throw new Error(
-                "Erro HTTP " + resposta.status
-            );
-
-        }
-
-        const participantes = await resposta.json();
+        const participantes = await carregarParticipantes();
 
         console.log(participantes);
 
         if (!Array.isArray(participantes)) {
 
-            throw new Error(
-                "O Apps Script não retornou uma lista."
-            );
+            throw new Error("Resposta inválida do Apps Script.");
 
         }
 
         if (participantes.length === 0) {
 
-            mensagem.className = "erro";
-
-            mensagem.innerHTML =
-                "Nenhum participante encontrado.";
-
-            return;
+            throw new Error("Nenhum participante encontrado.");
 
         }
 
         let quantidade =
-            Number(
-                document.getElementById("quantidade").value
-            );
+            Number(document.getElementById("quantidade").value);
 
-        quantidade = Math.min(
-            quantidade,
-            participantes.length
-        );
+        quantidade = Math.min(quantidade, participantes.length);
 
-        participantes.sort(() => Math.random() - 0.5);
+        // Fisher-Yates
+        for (let i = participantes.length - 1; i > 0; i--) {
+
+            const j = Math.floor(Math.random() * (i + 1));
+
+            [participantes[i], participantes[j]] =
+            [participantes[j], participantes[i]];
+
+        }
 
         const vencedores =
             participantes.slice(0, quantidade);
 
-        let html =
-            "<h2>🏆 Vencedores</h2>";
+        let html = "<h2>🏆 Vencedores</h2>";
 
         vencedores.forEach((vencedor, index) => {
 
             html += `
-            <div class="vencedor">
+                <div class="vencedor">
 
-                🥇 ${index + 1}º Sorteado
+                    🥇 ${index + 1}º Sorteado
 
-                <br><br>
+                    <br><br>
 
-                ${vencedor.nome}
+                    ${vencedor.nome}
 
-            </div>
+                </div>
             `;
 
         });
@@ -90,8 +115,7 @@ async function realizarSorteio() {
 
         mensagem.className = "sucesso";
 
-        mensagem.innerHTML =
-            "✅ Sorteio realizado com sucesso!";
+        mensagem.innerHTML = "✅ Sorteio realizado com sucesso!";
 
     }
 
@@ -101,8 +125,7 @@ async function realizarSorteio() {
 
         mensagem.className = "erro";
 
-        mensagem.innerHTML =
-            erro.message;
+        mensagem.innerHTML = erro.message;
 
     }
 
