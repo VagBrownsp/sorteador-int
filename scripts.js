@@ -1,5 +1,5 @@
 const SCRIPT_URL =
-"https://script.google.com/macros/s/AKfycbzJni2U4M7wBjpa_JPGDbuXJkDEh5GIVkEXyk3CpvGQ_e9QmjJewfxbGVDvlpjrzHqe/exec";
+"https://script.google.com/macros/s/AKfycbzshhdl4ryLqs5TwhKtKz07a4ateWX9uTPhuXTtLx0Yw7mlajmuJZkJUY_k-LE2Rwbf/exec";
 
 const btn = document.getElementById("btnSortear");
 const mensagem = document.getElementById("mensagem");
