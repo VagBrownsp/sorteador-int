@@ -6,47 +6,92 @@ const mensagem = document.getElementById("mensagem");
 const resultado = document.getElementById("resultadoSorteio");
 
 btn.addEventListener("click", realizarSorteio);
-
-// ==========================
-// Carrega participantes via JSONP
-// ==========================
 function carregarParticipantes() {
 
     return new Promise((resolve, reject) => {
 
-        const callback = "jsonp_" + Date.now();
+        const callback =
+            "jsonp_" +
+            Date.now() +
+            "_" +
+            Math.floor(Math.random() * 100000);
+
+        const script =
+            document.createElement("script");
+
+        let timeout;
+
+        function limpar() {
+
+            clearTimeout(timeout);
+
+            if (script.parentNode) {
+                script.parentNode.removeChild(script);
+            }
+
+            delete window[callback];
+
+        }
 
         window[callback] = function (dados) {
 
+            limpar();
+
+            if (!Array.isArray(dados)) {
+
+                reject(
+                    new Error(
+                        "Resposta inválida do Apps Script."
+                    )
+                );
+
+                return;
+
+            }
+
             resolve(dados);
 
-            delete window[callback];
+        };
 
-            script.remove();
+        script.src =
+            SCRIPT_URL +
+            "?callback=" +
+            callback +
+            "&_=" +
+            Date.now();
+
+        script.async = true;
+
+        script.onerror = function () {
+
+            limpar();
+
+            reject(
+                new Error(
+                    "Não foi possível carregar os participantes."
+                )
+            );
 
         };
 
-        const script = document.createElement("script");
+        timeout = setTimeout(() => {
 
-        script.src = SCRIPT_URL + "?callback=" + callback;
+            limpar();
 
-        script.onerror = () => {
+            reject(
+                new Error(
+                    "Tempo de resposta excedido."
+                )
+            );
 
-            delete window[callback];
+        }, 15000);
 
-            reject(new Error("Erro ao carregar participantes."));
-
-        };
-
-        document.body.appendChild(script);
+        document.head.appendChild(script);
 
     });
 
 }
 
-// ==========================
-// Sorteio
-// ==========================
 async function realizarSorteio() {
 
     btn.disabled = true;
@@ -55,45 +100,66 @@ async function realizarSorteio() {
 
     mensagem.className = "loading";
 
-    mensagem.innerHTML = "⏳ Buscando participantes...";
+    mensagem.innerHTML =
+        "⏳ Buscando participantes...";
 
     try {
 
-        const participantes = await carregarParticipantes();
-
-        console.log(participantes);
-
-        if (!Array.isArray(participantes)) {
-
-            throw new Error("Resposta inválida do Apps Script.");
-
-        }
+        const participantes =
+            await carregarParticipantes();
 
         if (participantes.length === 0) {
 
-            throw new Error("Nenhum participante encontrado.");
+            throw new Error(
+                "Nenhum participante encontrado."
+            );
 
         }
 
         let quantidade =
-            Number(document.getElementById("quantidade").value);
+            parseInt(
+                document.getElementById("quantidade").value,
+                10
+            );
 
-        quantidade = Math.min(quantidade, participantes.length);
+        if (isNaN(quantidade) || quantidade < 1) {
 
-        // Fisher-Yates
-        for (let i = participantes.length - 1; i > 0; i--) {
+            quantidade = 1;
 
-            const j = Math.floor(Math.random() * (i + 1));
+        }
 
-            [participantes[i], participantes[j]] =
-            [participantes[j], participantes[i]];
+        quantidade =
+            Math.min(
+                quantidade,
+                participantes.length
+            );
+
+        for (
+            let i = participantes.length - 1;
+            i > 0;
+            i--
+        ) {
+
+            const j =
+                Math.floor(
+                    Math.random() * (i + 1)
+                );
+
+            [
+                participantes[i],
+                participantes[j]
+            ] = [
+                participantes[j],
+                participantes[i]
+            ];
 
         }
 
         const vencedores =
             participantes.slice(0, quantidade);
 
-        let html = "<h2>🏆 Vencedores</h2>";
+        let html =
+            "<h2>🏆 Vencedores</h2>";
 
         vencedores.forEach((vencedor, index) => {
 
@@ -115,13 +181,14 @@ async function realizarSorteio() {
 
         mensagem.className = "sucesso";
 
-        mensagem.innerHTML = "✅ Sorteio realizado com sucesso!";
+        mensagem.innerHTML =
+            "✅ Sorteio realizado com sucesso!";
 
     }
 
     catch (erro) {
 
-        console.error(erro);
+        console.error("Erro:", erro);
 
         mensagem.className = "erro";
 
