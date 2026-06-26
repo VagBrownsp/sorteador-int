@@ -1,88 +1,115 @@
 const SCRIPT_URL =
-"https://script.google.com/macros/s/AKfycbx1sw54tjzAwprM98U85GCWcaknuqDJpSbdUgYtRX_DUgLN3VRcYxGMMhkZ6XXWgcpz/exec"
-const btn =
-document.getElementById("btnSortear");
+"https://script.google.com/macros/s/AKfycbx1sw54tjzAwprM98U85GCWcaknuqDJpSbdUgYtRX_DUgLN3VRcYxGMMhkZ6XXWgcpz/exec";
 
-const mensagem =
-document.getElementById("mensagem");
+const btn = document.getElementById("btnSortear");
+const mensagem = document.getElementById("mensagem");
+const resultado = document.getElementById("resultadoSorteio");
 
-const resultado =
-document.getElementById("resultadoSorteio");
+btn.addEventListener("click", realizarSorteio);
 
-btn.addEventListener(
-"click",
-async ()=>{
+async function realizarSorteio() {
 
-    mensagem.innerHTML =
-    "⏳ Realizando sorteio...";
+    btn.disabled = true;
 
     resultado.innerHTML = "";
 
+    mensagem.className = "loading";
+
+    mensagem.innerHTML = "⏳ Buscando participantes...";
+
     try {
 
-        const resposta =
-        await fetch(SCRIPT_URL);
+        const resposta = await fetch(SCRIPT_URL);
 
-        const participantes =
-        await resposta.json();
+        if (!resposta.ok) {
 
-        if(participantes.length === 0){
+            throw new Error(
+                "Erro HTTP " + resposta.status
+            );
+
+        }
+
+        const participantes = await resposta.json();
+
+        console.log(participantes);
+
+        if (!Array.isArray(participantes)) {
+
+            throw new Error(
+                "O Apps Script não retornou uma lista."
+            );
+
+        }
+
+        if (participantes.length === 0) {
+
+            mensagem.className = "erro";
 
             mensagem.innerHTML =
-            "Nenhum participante encontrado.";
+                "Nenhum participante encontrado.";
 
             return;
+
         }
 
         let quantidade =
-        Number(
-            document.getElementById("quantidade").value
-        );
+            Number(
+                document.getElementById("quantidade").value
+            );
 
-        quantidade =
-        Math.min(
+        quantidade = Math.min(
             quantidade,
             participantes.length
         );
 
-        // embaralhar
-        participantes.sort(
-            ()=>Math.random()-0.5
-        );
+        participantes.sort(() => Math.random() - 0.5);
 
         const vencedores =
-        participantes.slice(
-            0,
-            quantidade
-        );
-
-        mensagem.innerHTML =
-        "✅ Sorteio realizado!";
+            participantes.slice(0, quantidade);
 
         let html =
-        "<h2>🏆 Vencedores</h2>";
+            "<h2>🏆 Vencedores</h2>";
 
-        vencedores.forEach(
-            (vencedor,index)=>{
+        vencedores.forEach((vencedor, index) => {
 
-                html += `
-                <p>
-                    ${index+1}º -
-                    ${vencedor.nome}
-                </p>
-                `;
-            }
-        );
+            html += `
+            <div class="vencedor">
 
-        resultado.innerHTML =
-        html;
+                🥇 ${index + 1}º Sorteado
 
-    } catch(erro){
+                <br><br>
+
+                ${vencedor.nome}
+
+            </div>
+            `;
+
+        });
+
+        resultado.innerHTML = html;
+
+        mensagem.className = "sucesso";
 
         mensagem.innerHTML =
-        "❌ Erro ao buscar participantes.";
+            "✅ Sorteio realizado com sucesso!";
 
-        console.error(erro);
     }
 
-});
+    catch (erro) {
+
+        console.error(erro);
+
+        mensagem.className = "erro";
+
+        mensagem.innerHTML =
+            erro.message;
+
+    }
+
+    finally {
+
+        btn.disabled = false;
+
+    }
+
+}

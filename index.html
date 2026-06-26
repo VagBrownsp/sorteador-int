@@ -1,40 +1,67 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
     <title>Sorteador Vale Financeira</title>
 
     <link rel="stylesheet" href="styles.css">
 
-    <script src="scripts.js" defer></script>
 </head>
 
 <body>
 
-    <div class="container">
+<div class="container">
 
-        <h1>🎉 Sorteador Vale Financeira</h1>
+    <div class="topo">
 
-        <label for="quantidade">
-            Quantidade de vencedores
-        </label>
+        <div class="icone">
+            🎉
+        </div>
 
-        <input
-            type="number"
-            id="quantidade"
-            min="1"
-            value="1">
+        <h1>Sorteador Vale Financeira</h1>
 
-        <button id="btnSortear">
-            Sortear
-        </button>
-
-        <div id="mensagem"></div>
-
-        <div id="resultadoSorteio"></div>
+        <p>
+            Escolha a quantidade de vencedores.
+        </p>
 
     </div>
 
+    <div class="campo">
+
+        <label for="quantidade">
+
+            Quantidade de vencedores
+
+        </label>
+
+        <input
+            id="quantidade"
+            type="number"
+            min="1"
+            value="1">
+
+    </div>
+
+    <button id="btnSortear">
+
+        🎲 Realizar Sorteio
+
+    </button>
+
+    <div id="mensagem"></div>
+
+    <div id="resultadoSorteio"></div>
+
+</div>
+
+<script src="scripts.js"></script>
+
 </body>
+
 </html>
